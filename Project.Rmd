@@ -1,0 +1,51 @@
+---
+title: "Multiple Linear Regression – Student Performance"
+output: html_document
+date: "2025-11-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# DATA FROM CSV FILE ----------------------------------------------------------
+
+```{r}
+install.packages("here")
+library(here)
+install.packages("tidyverse")
+library(tidyverse)
+# Build path to data using here()
+
+path_to_data <- here("StudentsPerformance.csv")
+students <- read.csv(path_to_data)
+
+```
+
+# Factor Data Conversion ------------------------------------------------------
+
+```{r}
+factor_students <- students %>%
+  mutate(
+    gender = as.factor(gender),
+    parental.level.of.education = as.factor(parental.level.of.education)
+  )
+
+```
+# Multiple Linear Regression Calc ---------------------------------------------
+
+
+```{r}
+model <- lm(math.score ~ gender + parental_education, data = factor_students)
+
+summary(model)
+
+```
+
+# Graphs and Models -----------------------------------------------------------
+
+```{r}
+par(mfrow=c(2,2))
+plot(model)
+
+```
