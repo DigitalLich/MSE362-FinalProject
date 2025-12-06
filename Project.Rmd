@@ -28,7 +28,7 @@ students <- read.csv(path_to_data)
 factor_students <- students %>%
   mutate(
     gender = as.factor(gender),
-    parental.level.of.education = as.factor(parental.level.of.education)
+    parental.level. = as.factor(parental.level.of.education)
   )
 
 ```
@@ -36,7 +36,7 @@ factor_students <- students %>%
 
 
 ```{r}
-model <- lm(math.score ~ gender + parental_education, data = factor_students)
+model <- lm(math.score ~ gender + parental.level., data = factor_students)
 
 summary(model)
 
