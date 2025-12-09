@@ -1,7 +1,7 @@
 ---
-title: "Multiple Linear Regression – Student Performance"
+title: "Student Performance – Correlation, ANOVA, and Multiple Linear Regression"
 output: html_document
-date: "2025-11-29"
+date: "2025-12-08"
 ---
 
 ```{r setup, include=FALSE}
@@ -11,15 +11,16 @@ knitr::opts_chunk$set(echo = TRUE)
 # DATA FROM CSV FILE ----------------------------------------------------------
 
 ```{r}
-install.packages("here")
-library(here)
-install.packages("tidyverse")
+# install.packages("here")
+# install.packages("tidyverse")
+# install.packages("reshape2")
 library(tidyverse)
+library(here)
+library(reshape2)
 # Build path to data using here()
 
 path_to_data <- here("StudentsPerformance.csv")
 students <- read.csv(path_to_data)
-
 ```
 
 # Factor Data Conversion ------------------------------------------------------
@@ -30,8 +31,75 @@ factor_students <- students %>%
     gender = as.factor(gender),
     parental.level. = as.factor(parental.level.of.education)
   )
-
 ```
+
+# Quantitative Variables Selection --------------------------------------------
+```{r}
+quant_vars <- factor_students %>%
+  select(math.score, reading.score, writing.score)
+```
+
+# Correlation Analysis Calc ---------------------------------------------------
+```{r}
+cor_matrix <- cor(quant_vars, use = "complete.obs")
+
+cor_matrix
+
+round(cor_matrix, 3)
+```
+
+# Correlation Graphs ----------------------------------------------------------
+```{r}
+# Math vs Reading
+
+ggplot(factor_students, aes(x = reading.score, y = math.score)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  labs(title = "Math vs Reading Scores",
+       x = "Reading Score",
+       y = "Math Score")
+```
+
+```{r}
+# Math vs Writing
+
+ggplot(factor_students, aes(x = writing.score, y = math.score)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Math vs Writing Scores",
+       x = "Writing Score",
+       y = "Math Score")
+```
+
+```{r}
+# Reading vs Writing
+
+ggplot(factor_students, aes(x = reading.score, y = writing.score)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "green") +
+  labs(title = "Reading vs Writing Scores",
+       x = "Reading Score",
+       y = "Writing Score")
+```
+
+# ANOVA Calc ------------------------------------------------------------------
+```{r}
+anova_model <- aov(math.score ~ parental.level., data = factor_students)
+
+summary(anova_model)
+TukeyHSD(anova_model)
+```
+
+# ANOVA Graphs ----------------------------------------------------------------
+```{r}
+ggplot(factor_students, aes(x = parental.level., y = math.score)) +
+  geom_boxplot() +
+  labs(title = "Math Scores by Parental Education Level",
+  x = "Parental Education Level",
+  y = "Math Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
 # Multiple Linear Regression Calc ---------------------------------------------
 
 
@@ -39,7 +107,6 @@ factor_students <- students %>%
 model <- lm(math.score ~ gender + parental.level., data = factor_students)
 
 summary(model)
-
 ```
 
 # Graphs and Models -----------------------------------------------------------
@@ -47,5 +114,4 @@ summary(model)
 ```{r}
 par(mfrow=c(2,2))
 plot(model)
-
 ```
